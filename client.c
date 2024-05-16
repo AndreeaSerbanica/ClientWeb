@@ -10,6 +10,7 @@
 #include "requests.h"
 #include "utils.h"
 #include "parson.h"
+#include "commands.h"
 
 int main(int argc, char *argv[])
 {
@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
 
             json_free_serialized_string(json_string);
             close_connection(sockfd);
-            free(response);
+            free(response);          
 
 
         } else if (strcmp(command, "login") == 0) {
@@ -101,6 +102,18 @@ int main(int argc, char *argv[])
             send_to_server(sockfd, post_message);
 
             char *response = receive_from_server(sockfd);
+
+            printf("Response: %s\n", response);
+
+            //save the cookie
+            char *cookie = strstr(response, "connect.sid");
+            if (cookie != NULL) {
+                cookies[cookies_count] = (char *)malloc(2 * LINELEN * sizeof(char));
+                strcpy(cookies[cookies_count], cookie);
+                cookies_count++;
+            }
+
+            
              char *json_response = basic_extract_json_response(response);
             if (json_response == NULL) {
                 printf("Utilizatorul a fost logat cu succes\n");
@@ -117,6 +130,22 @@ int main(int argc, char *argv[])
             close_connection(sockfd);
             
             free(response);
+
+        }else if (strcmp(command, "enter_library") == 0) {
+
+            char *acces_response = access_to_library(host, port, cookies, cookies_count);
+            
+            JSON_Value *val_ret = json_parse_string(acces_response);
+            JSON_Object *json_ret = json_value_get_object(val_ret);
+
+            if(json_ret != NULL) {
+                char *json_msg = json_object_get_string(json_ret, "error");
+                printf("Error: %s\n", json_msg);
+            } else {
+                // char *token = json_object_get_string(json_ret, "token");
+                printf("Utilizatorul are acces la biblioteca\n");
+            }
+
 
         } else if (strcmp(command, "exit") == 0) {
             printf("Inchidere program\n");
