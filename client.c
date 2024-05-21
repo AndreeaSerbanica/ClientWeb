@@ -21,10 +21,15 @@ int main(int argc, char *argv[])
 
     char command[50];
     int sockfd;
-    char **cookies = NULL;
-    int cookies_count = 0;
+    char **cookies = (char **)malloc(10 * sizeof(char *));
+    for (int i = 0; i < 10; i++) {
+        cookies[i] = (char *)malloc(2 * 10 * sizeof(char));
+    }
 
-    give_cookies_space(cookies, 10);
+    int cookies_count = 0;
+    char *token = NULL;
+
+    
 
     while (1) {
         printf("Enter command: ");
@@ -103,27 +108,34 @@ int main(int argc, char *argv[])
 
             char *response = receive_from_server(sockfd);
 
-            printf("Response: %s\n", response);
+            // printf("Response: %s\n", response);
 
             //save the cookie
-            char *cookie = strstr(response, "connect.sid");
-            if (cookie != NULL) {
-                cookies[cookies_count] = (char *)malloc(2 * LINELEN * sizeof(char));
-                strcpy(cookies[cookies_count], cookie);
-                cookies_count++;
+            int isCookieReal = 0;
+            char *cookie;
+            char *p = strstr(response, "Set-Cookie: ");
+            if (p) {
+                cookie =strtok(p + strlen("Set-Cookie: "), "\n");
+                isCookieReal = 1;
+                printf("Cookie: %s\n", cookie);
             }
 
+            if (isCookieReal == 0) {
+                char *json_response = basic_extract_json_response(response);
+                if (json_response == NULL) {
+                    printf("Utilizatorul a fost logat cu succes\n");
+                } else {
+                    JSON_Value *val_ret = json_parse_string(json_response);
+                    JSON_Object *json_ret = json_value_get_object(val_ret);
+                    char *json_msg = json_object_get_string(json_ret, "error");
+                    printf("Error: %s\n", json_msg);
+                }
+            }
+
+            if (strstr(cookie, "connect.sid") != NULL) {
+                strcpy(cookies[cookies_count++], strtok(strdup(cookie), ";"));
+            }
             
-             char *json_response = basic_extract_json_response(response);
-            if (json_response == NULL) {
-                printf("Utilizatorul a fost logat cu succes\n");
-            } else {
-                JSON_Value *val_ret = json_parse_string(json_response);
-                JSON_Object *json_ret = json_value_get_object(val_ret);
-                char *json_msg = json_object_get_string(json_ret, "error");
-                printf("Error: %s\n", json_msg);
-            }
-
             json_free_serialized_string(json_string);
             free(post_message);
 
@@ -131,24 +143,36 @@ int main(int argc, char *argv[])
             
             free(response);
 
-        }else if (strcmp(command, "enter_library") == 0) {
+        } else if (strcmp(command, "enter_library") == 0) {
 
             char *acces_response = access_to_library(host, port, cookies, cookies_count);
             
             JSON_Value *val_ret = json_parse_string(acces_response);
             JSON_Object *json_ret = json_value_get_object(val_ret);
 
-            if(json_ret != NULL) {
+
+            if(json_object_get_string(json_ret, "token") == NULL) {
                 char *json_msg = json_object_get_string(json_ret, "error");
-                printf("Error: %s\n", json_msg);
+                printf("Just a silly Error: %s\n", json_msg);
             } else {
-                // char *token = json_object_get_string(json_ret, "token");
+                token = malloc(1000 * sizeof(char));
+                strcpy(token, json_object_get_string(json_ret, "token"));
                 printf("Utilizatorul are acces la biblioteca\n");
             }
 
 
+        } else if (strcmp(command, "get_books") == 0) {
+
+            char *get_books_msg = get_books(host, port, cookies, cookies_count, token);
+            printf("Books: %s\n", get_books_msg);
+
+
+        } else if (strcmp(command, "get_book") == 0) {
+            
+            //to do 
+
+
         } else if (strcmp(command, "exit") == 0) {
-            printf("Inchidere program\n");
             break;
         } else {
             printf("Invalid command\n");
