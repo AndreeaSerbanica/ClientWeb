@@ -21,7 +21,6 @@ int main(int argc, char *argv[])
 
 
     char command[50];
-    int sockfd;
     char **cookies = (char **)malloc(10 * sizeof(char *));
     for (int i = 0; i < 10; i++) {
         cookies[i] = (char *)malloc(2 * 10 * sizeof(char));
@@ -31,40 +30,17 @@ int main(int argc, char *argv[])
     char *token = NULL;
 
     
-
     while (1) {
         printf("Enter command: ");
         scanf("%s", command);
 
         if (strcmp(command, "register") == 0) {
-            char username[LINELEN], password[LINELEN];
 
             if (already_logged_in(cookies, 0) == 1) {
                 continue;
             }
-
-            sockfd = open_connection(host, port, AF_INET, SOCK_STREAM, 0);
-            if (sockfd < 0) {
-                perror("open_connection");
-                return 1;
-            }
-
-            printf("username=");
-            scanf("%s", username);
-            printf("password=");
-            scanf("%s", password);
-
-            char *json_string = json_with_credentials(username, password);
-
-
-            char *post_message = compute_post_request(host, "/api/v1/tema/auth/register", payload_type, json_string, NULL, 0, NULL);
-
-
-            send_to_server(sockfd, post_message);
-            free(post_message);
-
-
-            char *response = receive_from_server(sockfd);
+            
+            char *response = register_response(host, port, cookies, cookies_count, payload_type);
 
             char *json_response = basic_extract_json_response(response);
             if (json_response == NULL) {
@@ -74,11 +50,7 @@ int main(int argc, char *argv[])
                 JSON_Object *json_ret = json_value_get_object(val_ret);
                 const char *json_msg = json_object_get_string(json_ret, "error");
                 printf("Error: %s\n", json_msg);
-            }
-
-            json_free_serialized_string(json_string);
-            close_connection(sockfd);
-            free(response);          
+            }      
 
 
         } else if (strcmp(command, "login") == 0) {
@@ -110,9 +82,12 @@ int main(int argc, char *argv[])
                     printf("Error: %s\n", json_msg);
                 }
             }
+            
+            if(!strstr(response, "error")) {
 
-            if (strstr(cookie, "connect.sid") != NULL) {
-                strcpy(cookies[cookies_count++], strtok(strdup(cookie), ";"));
+                if (strstr(cookie, "connect.sid") != NULL) {
+                    strcpy(cookies[cookies_count++], strtok(strdup(cookie), ";"));
+                }
             }
 
         } else if (strcmp(command, "enter_library") == 0) {
@@ -175,9 +150,9 @@ int main(int argc, char *argv[])
             //delete the cookie
             cookies_count = 0;
 
-            
         } else if (strcmp(command, "exit") == 0) {
             break;
+
         } else {
             printf("Invalid command\n");
         }
