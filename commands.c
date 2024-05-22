@@ -11,6 +11,33 @@
 #include "utils.h"
 #include "parson.h"
 
+char *login_response(char *host, int port, char **cookies, int cookies_count, char *payload_type) {
+    char username[LINELEN], password[LINELEN];
+    char *response = NULL;
+
+    int sockfd = open_connection(host, port, AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+        perror("open_connection");
+        return NULL;
+    }
+
+    printf("username=");
+    scanf("%s", username);
+    printf("password=");
+    scanf("%s", password);
+
+    char *json_string = json_with_credentials(username, password);
+
+    char *post_message = compute_post_request(host, "/api/v1/tema/auth/login", payload_type, json_string, NULL, 0, NULL);
+
+    send_to_server(sockfd, post_message);
+    response = receive_from_server(sockfd);
+    close_connection(sockfd);
+
+    return response;
+    
+}
+
 char *access_to_library(char *host, int port, char **cookies, int cookies_count) {
     char *response = NULL;
     int sockfd = open_connection(host, port, AF_INET, SOCK_STREAM, 0);
@@ -194,12 +221,11 @@ const char *logout(char *host, int port, char **cookies, int cookies_count, char
     send_to_server(sockfd, message);
     response = receive_from_server(sockfd);
     close_connection(sockfd);
+    
+    if (strstr(response, "ok")) {
+        return "Utilizatorul s-a delogat cu succes!";
+    } 
 
-    if (basic_extract_json_response(response) != NULL) {
-        JSON_Value *ret_val = json_parse_string(response);
-        JSON_Object *ret_obj = json_value_get_object(ret_val);
-        const char *error_msg = json_object_get_string(ret_obj, "error");
-        return error_msg;
-    }
-    return "You have been logged out!";
+    return "Sorry, nu esti logat! :(\n";
+    
 }

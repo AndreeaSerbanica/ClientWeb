@@ -12,16 +12,27 @@
 #include "parson.h"
 #include "commands.h"
 
-int aready_logged_in(char **cookies, int cookies_count) {
+int already_logged_in(char **cookies, int cookies_count) {
     for (int i = 0; i < cookies_count; i++) {
         if (strstr(cookies[i], "connect.sid") != NULL) {
             printf("User is already logged in\n");
             return 1;
         }
     }
-
     return 0;
 }
+
+int not_logged_in(char **cookies, int cookies_count) {
+    for (int i = 0; i < cookies_count; i++) {
+        if (strstr(cookies[i], "connect.sid") != NULL) {
+            return 0;
+        }
+    }
+    printf("Trebuie sa dai login!\n");
+    return 1;
+}
+
+
 
 char *json_with_credentials(char *username, char *password) {
     JSON_Value *root_value = json_value_init_object();
