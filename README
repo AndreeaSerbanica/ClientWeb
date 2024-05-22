@@ -1,0 +1,44 @@
+Aplicație Client-Server
+
+AM FOLOSIT SCHELETUL DIN LABORATUL 9.
+
+Descriere:
+Acest proiect este o aplicație client-server care permite utilizatorilor să se înregistreze, să se autentifice, să acceseze o bibliotecă, să vizualizeze cărți, să adauge cărți, să șteargă cărți și să se delogheze. Aplicația comunică cu un server folosind cereri HTTP și gestionează răspunsurile JSON. Aplicația folosește o interfață de linie de comandă pentru a interacționa cu utilizatorul.
+
+Fișiere sursa:
+    -client.c: Punctul principal de intrare al aplicației. Gestionează intrarea utilizatorului, administrează comenzile și procesează răspunsurile de la server.
+    -requests.c: Definește funcții pentru realizarea cererilor HTTP către server(GET, POST, DELETE).
+    -utils.c: Furnizează funcții utilitare suplimentare.
+    -commands.c: Definește funcții pentru gestionarea comenzilor specifice (de ex., register, login, add_book, etc).
+
+Funcții:
+    -register_response: Trimite cererea de înregistrare a unui utilizator nou.
+    -login_response: Trimite cererea de autentificare a unui utilizator.
+    -access_to_library: Trimite cererea de acces la biblioteca.
+    -get_books: Trimite cererea de obținere a listei de cărți.
+    -get_one_book: Trimite cererea de obținere a detaliilor unei cărți specifice.
+    -add_book: Trimite cererea de adăugare a unei cărți noi.
+    -delete_book: Trimite cererea de ștergere a unei cărți.
+    -logout: Trimite cererea de delogare a utilizatorului.
+
+Comenzi:
+    -Login/Register/Logout:
+        Dacă clientul este deja autentificat, comenzile de login și register nu vor funcționa.
+        Dacă clientul nu este logat, nu va putea face logout.
+        Pentru login și register se apelează funcții care citesc datele introduse de utilizator și creează cereri POST către server. Răspunsul serverului poate fi un mesaj de eroare sau succes. În cazul login-ului, se va afișa cookie-ul de sesiune.
+
+    
+    -Accesare Bibliotecă:
+        După autentificare, utilizatorul trebuie să "intre" în bibliotecă prin comanda enter_library.
+        Comanda enter_library apelează funcția get_access care trimite o cerere GET către server. Răspunsul serverului este un string JSON care este parsat în main. Se va afișa token-ul în caz de succes sau un mesaj de eroare.
+    
+    -Vizualizare și Gestionare Cărți:
+        După accesarea bibliotecii, utilizatorul poate vizualiza cărțile existente folosind funcțiile get_books și get_book_info.
+        Utilizatorul poate adăuga cărți noi folosind funcția add_book și poate șterge cărți folosind funcția delete_book. Aceste funcții trimit cereri POST/DELETE către server.
+
+
+PENTRU PARSARA RĂSPUNSURILOR JSON AM FOLOSIT BIBLIOTECA PARSON.
+Biblioteaca parson:
+    -Am folosit biblioteca parson pentru a parsa răspunsurile JSON de la server.
+    -Am inclus fișierul parson.c și parson.h în proiect.
+    -Am folosit funcțiile json_parse_string, json_object_get_string și json_value_get_object pentru a extrage informații din răspunsurile JSON.
