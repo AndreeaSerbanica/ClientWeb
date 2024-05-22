@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
             if(json_object_get_string(json_ret, "token") == NULL) {
                 const char *json_msg = json_object_get_string(json_ret, "error");
-                printf("Just a silly Error: %s\n", json_msg);
+                printf("Error: %s\n", json_msg);
             } else {
                 token = malloc(1000 * sizeof(char));
                 strcpy(token, json_object_get_string(json_ret, "token"));

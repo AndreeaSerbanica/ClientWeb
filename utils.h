@@ -6,9 +6,6 @@ int already_logged_in(char **cookies, int cookies_count);
 int not_logged_in(char **cookies, int cookies_count);
 //creates a json string with the credentials
 char *json_with_credentials(char *username, char *password);
-
-const char* user_register_login(char *host, int port, char *payload_type, char *access_route);
-
 void strip_newline(char *str);
 
 #endif
