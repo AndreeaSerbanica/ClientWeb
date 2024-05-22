@@ -8,4 +8,6 @@ char *json_with_credentials(char *username, char *password);
 
 const char* user_register_login(char *host, int port, char *payload_type, char *access_route);
 
+void strip_newline(char *str);
+
 #endif

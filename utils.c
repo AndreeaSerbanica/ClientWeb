@@ -80,3 +80,10 @@ const char* user_register_login(char *host, int port, char *payload_type, char *
         return json_object_get_string(json_ret, "error");
     }
 }
+
+void strip_newline(char *str) {
+    size_t len = strlen(str);
+    if (len > 0 && str[len - 1] == '\n') {
+        str[len - 1] = '\0';
+    }
+}

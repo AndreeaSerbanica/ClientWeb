@@ -12,6 +12,7 @@
 #include "parson.h"
 #include "commands.h"
 
+
 int main(int argc, char *argv[])
 {
     char *host = "34.246.184.49";
@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
             } else {
                 JSON_Value *val_ret = json_parse_string(json_response);
                 JSON_Object *json_ret = json_value_get_object(val_ret);
-                char *json_msg = json_object_get_string(json_ret, "error");
+                const char *json_msg = json_object_get_string(json_ret, "error");
                 printf("Error: %s\n", json_msg);
             }
 
@@ -103,6 +104,8 @@ int main(int argc, char *argv[])
 
             char *post_message = compute_post_request(host, "/api/v1/tema/auth/login", payload_type, json_string, NULL, 0, NULL);
 
+            printf("Post message: %s\n", post_message);
+
 
             send_to_server(sockfd, post_message);
 
@@ -118,6 +121,7 @@ int main(int argc, char *argv[])
                 cookie =strtok(p + strlen("Set-Cookie: "), "\n");
                 isCookieReal = 1;
                 printf("Cookie: %s\n", cookie);
+                printf("Utilizatorul a fost logat cu succes\n");
             }
 
             if (isCookieReal == 0) {
@@ -127,7 +131,7 @@ int main(int argc, char *argv[])
                 } else {
                     JSON_Value *val_ret = json_parse_string(json_response);
                     JSON_Object *json_ret = json_value_get_object(val_ret);
-                    char *json_msg = json_object_get_string(json_ret, "error");
+                    const char *json_msg = json_object_get_string(json_ret, "error");
                     printf("Error: %s\n", json_msg);
                 }
             }
@@ -152,7 +156,7 @@ int main(int argc, char *argv[])
 
 
             if(json_object_get_string(json_ret, "token") == NULL) {
-                char *json_msg = json_object_get_string(json_ret, "error");
+                const char *json_msg = json_object_get_string(json_ret, "error");
                 printf("Just a silly Error: %s\n", json_msg);
             } else {
                 token = malloc(1000 * sizeof(char));
@@ -163,16 +167,37 @@ int main(int argc, char *argv[])
 
         } else if (strcmp(command, "get_books") == 0) {
 
-            char *get_books_msg = get_books(host, port, cookies, cookies_count, token);
+            const char *get_books_msg = get_books(host, port, cookies, cookies_count, token);
             printf("Books: %s\n", get_books_msg);
 
 
         } else if (strcmp(command, "get_book") == 0) {
+            char *get_book_msg = get_one_book(host, port, cookies, cookies_count, token);
+
+            JSON_Value *val_ret = json_parse_string(get_book_msg);
+            JSON_Object *json_ret = json_value_get_object(val_ret);
+
+            if (json_object_get_string(json_ret, "error") != NULL) {
+                const char *json_msg = json_object_get_string(json_ret, "error");
+                printf("Error: %s\n", json_msg);
+            } else {
+                printf("Book: %s\n", get_book_msg);
+            }
+
+
+        } else if (strcmp(command, "add_book") == 0) {
+
+            const char *add_book_msg = add_book(host, port, cookies, cookies_count, token);
+
+            printf("%s\n", add_book_msg);
             
-            //to do 
+        } else if (strcmp(command, "delete_book") == 0) {
 
+            const char *delete_book_msg = delete_book(host, port, cookies, cookies_count, token);
 
-        } else if (strcmp(command, "exit") == 0) {
+            printf("%s\n", delete_book_msg);
+            
+        }else if (strcmp(command, "exit") == 0) {
             break;
         } else {
             printf("Invalid command\n");

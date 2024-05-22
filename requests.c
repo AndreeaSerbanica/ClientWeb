@@ -87,23 +87,23 @@ char *compute_post_request(char *host, char *url, char* content_type, char *payl
     return message;
 }
 
-// char *compute_delete_request(char *host, char *url, char* content_type, char *token_jwt)
-// {
-//     char *message = calloc(BUFLEN, sizeof(char));
-//     char *line = calloc(LINELEN, sizeof(char));
+char *compute_delete_request(char *host, char *url, char* content_type, char *token_jwt)
+{
+    char *message = calloc(BUFLEN, sizeof(char));
+    char *line = calloc(LINELEN, sizeof(char));
 
-//     sprintf(line, "DELETE %s HTTP/1.1", url);
+    sprintf(line, "DELETE %s HTTP/1.1", url);
 
-//     compute_message(message, line);
+    compute_message(message, line);
 
-//     sprintf(line, "Host: %s", host);
-//     compute_message(message, line);
+    sprintf(line, "Host: %s", host);
+    compute_message(message, line);
     
-//     sprintf(line, "Authorization: Bearer %s", token_jwt);
-//     compute_message(message, line);
+    sprintf(line, "Authorization: Bearer %s", token_jwt);
+    compute_message(message, line);
 
-//     compute_message(message, "");
+    compute_message(message, "");
 
-//     free(line);
-//     return message;
-// }
+    free(line);
+    return message;
+}
