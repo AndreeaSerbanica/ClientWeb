@@ -179,3 +179,27 @@ const char *delete_book(char *host, int port, char **cookies, int cookies_count,
     }
     return "Book deleted successfully!";
 }
+
+const char *logout(char *host, int port, char **cookies, int cookies_count, char *token) {
+    char *response = NULL;
+
+    int sockfd = open_connection(host, port, AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+        perror("open_connection");
+        return NULL;
+    }
+
+    char *message = compute_get_request(host, "/api/v1/tema/auth/logout", NULL, cookies, cookies_count, token);
+
+    send_to_server(sockfd, message);
+    response = receive_from_server(sockfd);
+    close_connection(sockfd);
+
+    if (basic_extract_json_response(response) != NULL) {
+        JSON_Value *ret_val = json_parse_string(response);
+        JSON_Object *ret_obj = json_value_get_object(ret_val);
+        const char *error_msg = json_object_get_string(ret_obj, "error");
+        return error_msg;
+    }
+    return "You have been logged out!";
+}

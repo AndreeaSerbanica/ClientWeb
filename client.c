@@ -188,16 +188,19 @@ int main(int argc, char *argv[])
         } else if (strcmp(command, "add_book") == 0) {
 
             const char *add_book_msg = add_book(host, port, cookies, cookies_count, token);
-
             printf("%s\n", add_book_msg);
             
         } else if (strcmp(command, "delete_book") == 0) {
 
             const char *delete_book_msg = delete_book(host, port, cookies, cookies_count, token);
-
             printf("%s\n", delete_book_msg);
             
-        }else if (strcmp(command, "exit") == 0) {
+        } else if (strcmp(command, "logout") == 0) {
+
+            const char *logout_msg = logout(host, port, cookies, cookies_count, token);
+            printf("%s\n", logout_msg);
+            
+        } else if (strcmp(command, "exit") == 0) {
             break;
         } else {
             printf("Invalid command\n");
