@@ -57,13 +57,10 @@ char *login_response(char *host, int port, char **cookies, int cookies_count, ch
 
     char *post_message = compute_post_request(host, "/api/v1/tema/auth/login", payload_type, json_string, NULL, 0, NULL);
 
-    printf("POSTMSG: %s\n", post_message);
 
     send_to_server(sockfd, post_message);
     response = receive_from_server(sockfd);
     close_connection(sockfd);
-
-    // printf("response: %s\n", response);
 
     return response;
     
@@ -78,8 +75,6 @@ char *access_to_library(char *host, int port, char **cookies, int cookies_count)
     }
 
     char *message = compute_get_request(host, "/api/v1/tema/library/access", NULL, cookies, cookies_count, NULL);
-
-    printf("GETMSG: %s\n", message);
 
     send_to_server(sockfd, message);
     response = receive_from_server(sockfd);
@@ -99,13 +94,10 @@ const char *get_books(char *host, int port, char **cookies, int cookies_count, c
 
     char *message = compute_get_request(host, "/api/v1/tema/library/books", NULL, cookies, cookies_count, token);
 
-    // printf("%s\n", message);
-
     send_to_server(sockfd, message);
     response = receive_from_server(sockfd);
     close_connection(sockfd);
 
-    // printf("The response is here: %s\n", response);
 
     if (strstr(response, "[")) {
         return strstr(response, "[");
@@ -239,21 +231,17 @@ const char *delete_book(char *host, int port, char **cookies, int cookies_count,
 
     char *message = compute_delete_request(host, link, token);
 
-    printf("DELETEMSG: %s\n", message);
-
     send_to_server(sockfd, message);
     response = receive_from_server(sockfd);
 
-    // printf("Respponse: %s\n", response);
     
     if (strstr(response, "404")) {
-        const char *invalid_msg = malloc(100 * sizeof(char));
+        char *invalid_msg = malloc(100 * sizeof(char));
         snprintf(invalid_msg, 100, "Id-ul %s nu exista!\n", id);
         return invalid_msg;
     }
 
     close_connection(sockfd);
-    // printf("seg heree\n");
 
     if (basic_extract_json_response(response) != NULL) {
         JSON_Value *ret_val = json_parse_string(response);
@@ -262,7 +250,7 @@ const char *delete_book(char *host, int port, char **cookies, int cookies_count,
         return error_msg;
     }
 
-    const char *succ_msg = malloc(100 * sizeof(char));
+    char *succ_msg = malloc(100 * sizeof(char));
     snprintf(succ_msg, 100, "Cartea cu id-ul %s a fost stearsa cu succes!\n", id);
     return succ_msg;
 }
