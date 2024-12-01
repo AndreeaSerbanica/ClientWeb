@@ -1,6 +1,5 @@
 Aplicație Client-Server
 
-AM FOLOSIT SCHELETUL DIN LABORATUL 9.
 
 Descriere:
 Acest proiect este o aplicație client-server care permite utilizatorilor să se înregistreze, să se autentifice, să acceseze o bibliotecă, să vizualizeze cărți, să adauge cărți, să șteargă cărți și să se delogheze. Aplicația comunică cu un server folosind cereri HTTP și gestionează răspunsurile JSON. Aplicația folosește o interfață de linie de comandă pentru a interacționa cu utilizatorul.
